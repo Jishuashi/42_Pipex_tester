@@ -543,13 +543,20 @@ run_test "Perm 02 (Cmd no exec)" "infiles/infile" "./outfiles/no_exec" "wc -l" "
 run_test "Perm 03 (Infile no read)" "infiles/err_perm" "cat" "wc -l" "normal"
 
 # ==========================================
-# CATEGORY 11: ERROR BEHAVIOR
+# CATEGORY 11: ERROR MESSAGES & EXIT CODES
 # ==========================================
-CURRENT_CATEGORY="Category 11: Error Behavior"
-run_test "Exit 127 (Cmd not found)" "infiles/infile" "fake_cmd" "wc" "normal"
-run_test "Exit 126 (Is a directory)" "infiles/infile" "/dev" "wc" "normal"
-run_test "Infile Error (No file)" "non_existant" "cat" "wc" "normal"
-run_test "Permission denied (In)" "infiles/err_perm" "cat" "wc" "normal"
+CURRENT_CATEGORY="Category 11: Error Messages"
+run_test "Error 01 (Cmd1 not found)" "infiles/infile" "fake_cmd1" "wc -l" "normal"
+run_test "Error 02 (Cmd2 not found)" "infiles/infile" "cat" "fake_cmd2" "normal"
+run_test "Error 03 (Infile no file)" "non_existent_in" "cat" "wc -l" "normal"
+run_test "Error 04 (Infile no perm)" "infiles/err_perm" "cat" "wc -l" "normal"
+run_test "Error 05 (Outfile no perm)" "infiles/infile" "cat" "wc -l" "no_perm"
+run_test "Error 06 (Cmd1 is directory)" "infiles/infile" "/dev" "wc -l" "normal"
+run_test "Error 07 (Cmd2 is directory)" "infiles/infile" "cat" "/etc" "normal"
+run_test "Error 08 (Empty Cmd1)" "infiles/infile" "" "wc -l" "normal"
+run_test "Error 09 (Space Cmd2)" "infiles/infile" "cat" "   " "normal"
+touch outfiles/no_exec_file && chmod 644 outfiles/no_exec_file
+run_test "Error 10 (Cmd no exec perm)" "infiles/infile" "./outfiles/no_exec_file" "wc -l" "normal"
 
 # ==========================================
 # CATEGORY 12: ABSOLUTE & RELATIVE PATHS
