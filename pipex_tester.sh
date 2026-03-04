@@ -525,6 +525,77 @@ if [ "$IS_BONUS" = true ]; then
     run_test_heredoc "Heredoc 05 (No perm out)" "EOF" "cat" "wc -l" "no_perm"
 fi
 
+# ==========================================
+# CATEGORY 9: DEEP ERROR & EDGE CASES
+# ==========================================
+CURRENT_CATEGORY="Category 9: Deep Error & Edge Cases"
+
+# Test du slash (Dossier au lieu de commande) - Classique pour les leaks
+run_test "Deep 01 (Cmd is slash)" "infiles/infile" "/" "wc -l" "normal"
+run_test "Deep 02 (Cmd is dot)" "infiles/infile" "." "wc -l" "normal"
+
+# Infile invalide ET commande invalide (L'erreur d'infile doit s'afficher en premier)
+run_test "Deep 03 (Invalid In + Invalid Cmd1)" "infiles/non_existant" "non_existant" "wc -l" "normal"
+run_test "Deep 04 (Invalid In + Invalid Cmd2)" "infiles/non_existant" "cat" "non_existant" "normal"
+
+# Permission sur binaire
+touch outfiles/no_exec_cmd && chmod 000 outfiles/no_exec_cmd
+run_test "Deep 05 (No exec perm cmd1)" "infiles/infile" "./outfiles/no_exec_cmd" "wc -l" "normal"
+
+# Path vide ou espace seul
+run_test "Deep 06 (Space cmd)" "infiles/infile" " " "wc -l" "normal"
+run_test "Deep 07 (Empty string cmd)" "infiles/infile" "" "wc -l" "normal"
+
+# ==========================================
+# CATEGORY 10: ERRORS MESSAGES & CODES
+# ==========================================
+CURRENT_CATEGORY="Category 10: Error Messages & Exit Codes"
+
+check_error_behavior() {
+    check_run_and_print_cat || return 0
+    
+    T_NAME="$1"; IN="$2"; C1="$3"; C2="$4"; OUT="outfiles/out_err"
+    ERR_BASH="$TMP_DIR/msg_bash"; ERR_PIPEX="$TMP_DIR/msg_pipex"
+    
+    # On capture le stderr et le exit code de Bash
+    bash -c "< $IN $C1 | $C2 > /dev/null" 2> "$ERR_BASH"
+    B_CODE=$?
+    
+    # On capture le stderr et le exit code de Pipex
+    ./pipex "$IN" "$C1" "$C2" "$OUT" 2> "$ERR_PIPEX"
+    P_CODE=$?
+    
+    MSG_OK=true
+    CODE_OK=true
+    
+    # Vérification du Code (Strict)
+    if [ "$B_CODE" -ne "$P_CODE" ]; then CODE_OK=false; fi
+    
+    # Vérification du message (on vérifie si les mots clés sont là)
+    # Exemple: si bash dit "No such file", pipex doit le dire aussi
+    K_WORD=$(awk -F: '{print $NF}' "$ERR_BASH" | xargs)
+    if ! grep -qi "$K_WORD" "$ERR_PIPEX"; then MSG_OK=false; fi
+
+    [ "$CODE_OK" = true ] && S_CODE="${GREEN}Code [Ok]${RESET}" || S_CODE="${RED}Code [KO]${RESET}"
+    [ "$MSG_OK" = true ] && S_MSG="${GREEN}Msg [Ok]${RESET}" || S_MSG="${RED}Msg [KO]${RESET}"
+    
+    printf "[%02d] [ %-35s ] %b %b %b\n" "$TEST_INDEX" "$T_NAME" "$S_CODE" "$S_MSG"
+    
+    if [ "$CODE_OK" = false ] || [ "$MSG_OK" = false ]; then
+        echo -e "${RED}❌ FAIL: $T_NAME${RESET}" >> "$TRACE_FILE"
+        echo "Bash Exit: $B_CODE | Pipex Exit: $P_CODE" >> "$TRACE_FILE"
+        echo "Bash Err: $(cat $ERR_BASH)" >> "$TRACE_FILE"
+        echo "Pipex Err: $(cat $ERR_PIPEX)" >> "$TRACE_FILE"
+        echo "---------------------------------" >> "$TRACE_FILE"
+    else
+        ((TOTAL_PASSED++))
+    fi
+}
+
+check_error_behavior "Exit 127 (Cmd not found)" "infiles/infile" "ls" "not_a_cmd"
+check_error_behavior "Exit 126 (Is a directory)" "infiles/infile" "/dev/null" "wc -l"
+check_error_behavior "Infile Error (No file)" "non_existant" "cat" "wc -l"
+check_error_behavior "Permission denied (In)" "infiles/err_perm" "cat" "wc -l"
 
 
 # ==========================================
