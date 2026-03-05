@@ -569,6 +569,7 @@ run_test "Path 01 (Abs path /bin/ls)" "infiles/infile" "/bin/ls" "wc -l" "normal
 cp /bin/cat ./cat_tester
 run_test "Path 02 (Relative ./cat)" "infiles/infile" "./cat_tester" "wc -l" "normal"
 run_test "Path 03 (Invalid Command)" "infiles/infile" "non_existent_cmd" "wc -l" "normal"
+run_test "Path 04 (Invalid Command / spaces)" "infiles/infile" "      / " "wc -l" "normal"
 
 # ==========================================
 # CATEGORY 13: PARALLEL EXECUTION & ZOMBIES
