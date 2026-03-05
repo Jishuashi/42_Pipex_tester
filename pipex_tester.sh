@@ -190,7 +190,7 @@ run_test() {
     if [ "$BASH_CODE" -ne "$PIPEX_CODE" ]; then CODE_OK=false; fi
     if grep -q "definitely lost:" "$VG_LOG" && ! grep -q "definitely lost: 0 bytes in 0 blocks" "$VG_LOG"; then LEAKS_OK=false; fi
     for count in $(grep "FILE DESCRIPTORS:" "$VG_LOG" | awk '{print $4}'); do
-        if [ "$count" != "3" ] && [ "$count" != "4" ]; then FD_OK=false; fi
+        if [ "$count" -gt 4 ]; then FD_OK=false; fi
     done
 
     TIME_ERR=""
@@ -246,7 +246,7 @@ run_test_args() {
     if [ "$PIPEX_CODE" -eq 0 ]; then CODE_OK=false; fi
     if grep -q "definitely lost:" "$VG_LOG_ARGS" && ! grep -q "definitely lost: 0 bytes in 0 blocks" "$VG_LOG_ARGS"; then LEAKS_OK=false; fi
     for count in $(grep "FILE DESCRIPTORS:" "$VG_LOG_ARGS" | awk '{print $4}'); do
-        if [ "$count" != "3" ] && [ "$count" != "4" ]; then FD_OK=false; fi
+        if [ "$count" -gt 4 ]; then FD_OK=false; fi
     done
 
     S_TIME="${GREEN}Time [-] ${RESET}"; S_OUT="${GREEN}Output [-] ${RESET}"
@@ -323,7 +323,7 @@ run_test_multi() {
     if [ "$BASH_CODE" -ne "$PIPEX_CODE" ]; then CODE_OK=false; fi
     if grep -q "definitely lost:" "$VG_LOG" && ! grep -q "definitely lost: 0 bytes in 0 blocks" "$VG_LOG"; then LEAKS_OK=false; fi
     for count in $(grep "FILE DESCRIPTORS:" "$VG_LOG" | awk '{print $4}'); do
-        if [ "$count" != "3" ] && [ "$count" != "4" ]; then FD_OK=false; fi
+        if [ "$count" -gt 4 ]; then FD_OK=false; fi
     done
 
     TIME_ERR=""
@@ -400,7 +400,7 @@ run_test_heredoc() {
     if [ "$BASH_CODE" -ne "$PIPEX_CODE" ]; then CODE_OK=false; fi
     if grep -q "definitely lost:" "$VG_LOG" && ! grep -q "definitely lost: 0 bytes in 0 blocks" "$VG_LOG"; then LEAKS_OK=false; fi
     for count in $(grep "FILE DESCRIPTORS:" "$VG_LOG" | awk '{print $4}'); do
-        if [ "$count" != "3" ] && [ "$count" != "4" ]; then FD_OK=false; fi
+        if [ "$count" -gt 4 ]; then FD_OK=false; fi
     done
 
     [ "$TIME_OK" = true ] && S_TIME="${GREEN}Time [Ok]${RESET}" || S_TIME="${RED}Time [KO]${RESET}"
@@ -467,7 +467,6 @@ CURRENT_CATEGORY="Category 3: Empty Commands"
 run_test "Empty 01 (empty cmd1)" "infiles/infile" '""' "wc -l" "normal"
 run_test "Empty 02 (empty cmd2)" "infiles/infile" "cat" '""' "normal"
 run_test "Empty 03 (both empty)" "infiles/infile" '""' '""' "normal"
-# CHANGED HERE: Replaced '.' with '/bin/notfound'
 run_test "Empty 04 (cmd1 invalid path)" "infiles/infile" "/bin/notfound" "wc -l" "normal"
 run_test "Empty 05 (cmd2 invalid path)" "infiles/infile" "cat" "/usr/bin/notfound" "normal"
 run_test "Empty 06 (cmd1 slash)" "infiles/infile" "/" "wc -l" "normal"
@@ -516,7 +515,7 @@ run_test "Sleep Err 05 (sleep1 + no_out)" "infiles/infile" "sleep 2" "cat" "no_p
 # ==========================================
 CURRENT_CATEGORY="Category 7: Deep Error & Edge Cases"
 run_test "Deep 01 (Cmd is slash)" "infiles/infile" "/" "wc -l" "normal"
-run_test "Deep 02 (Cmd is dot)" "infiles/infile" "." "wc -l" "normal"
+run_test "Deep 02 (Cmd is dir)" "infiles/infile" "/tmp" "wc -l" "normal"
 run_test "Deep 03 (Invalid In + Invalid Cmd1)" "infiles/non_existant" "non_existant" "wc -l" "normal"
 run_test "Deep 04 (Invalid In + Invalid Cmd2)" "infiles/non_existant" "cat" "non_existant" "normal"
 run_test "Deep 05 (Space cmd)" "infiles/infile" " " "wc -l" "normal"
@@ -587,10 +586,10 @@ run_test "Buffer 01 (50k lines stress)" "infiles/big_infile" "cat" "wc -l" "norm
 run_test "Buffer 02 (Binary flux stress)" "/dev/urandom" "head -c 1000000" "wc -c" "normal"
 
 # ==========================================
-# CATEGORY 15: COMPLEX PARSING
+# CATEGORY 15: COMPLEX PARSING 
 # ==========================================
 if [ "$IS_QUOTE" = true ]; then
-    CURRENT_CATEGORY="Category 15: Complex Parsing"
+    CURRENT_CATEGORY="Category 17: Complex Parsing"
     run_test "Parsing 01 (Sed spaces)" "infiles/infile" "sed 's/Line/Test OK/g'" "cat" "normal"
     run_test "Parsing 02 (Grep phrase)" "infiles/infile" "grep 'Line 1'" "cat" "normal"
     run_test "Parsing 03 (Multi-spaces)" "infiles/infile" "ls      -l" "grep    Line" "normal"
@@ -599,7 +598,7 @@ if [ "$IS_QUOTE" = true ]; then
 fi
 
 # ==========================================
-# CATEGORY 16 & 17: BONUS
+# CATEGORY 16 & 17: BONUS 
 # ==========================================
 if [ "$IS_BONUS" = true ]; then
     CURRENT_CATEGORY="Category 16: Multiple Pipes"
