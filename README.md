@@ -19,14 +19,20 @@ This script is a robust automated tester designed for the Pipex project (42 Netw
 1. Basic Tests: Standard pipes like `cat | wc`.
 2. Error Checking: Handling of non-existent files or invalid commands.
 3. Empty Commands: Tests `""` or `.` to check exit codes (127).
-
-4. Timing & Spaces: Parallel execution checks and simple argument spacing.
-
+4. Timing & Simple Spaces: Parallel execution checks and simple argument spacing.
 5. Invalid Arguments: Verifies rejection of wrong argument counts.
-
-6. Multiple Pipes (Bonus): Supports an infinite number of commands.
-
-7. Here_doc (Bonus): Simulates user input and checks append (`>>`) mode.
+6. Sleep Errors: Tests with sleep commands for timing issues.
+7. Deep Error & Edge Cases: Advanced error scenarios.
+8. System Flux & SIGPIPE: Signal handling and system interactions.
+9. Env & Path Stress: Environment and path-related tests.
+10. Strict Permissions: File permission handling.
+11. Error Messages: Validation of error outputs.
+12. Absolute & Relative Paths: Path resolution tests.
+13. Parallel & Zombies: Process management and zombie processes.
+14. Pipe Buffer Saturation: Large data handling.
+15. Complex Parsing: Commands with quotes, spaces, and special characters (requires `--quote-test`).
+16. Multiple Pipes (Bonus): Supports multiple commands in sequence.
+17. Here_doc (Bonus): Simulates user input and checks append mode.
 
 ## 🛠️ Usage
 
@@ -49,6 +55,11 @@ chmod +x pipex_tester.sh
 Run specific tests by their index numbers:
 ```BASH
 ./pipex_tester.sh --test 1 5 34
+```
+### 💬 Quote Test Run
+Enables complex parsing tests with quotes and special characters:
+```BASH
+./pipex_tester.sh --quote-test
 ```
 
 ### 🧹 Clean Up

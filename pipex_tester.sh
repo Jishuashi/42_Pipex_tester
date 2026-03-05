@@ -13,6 +13,7 @@ RESET="\033[0m"
 # ARGUMENTS PARSING
 # ==========================================
 IS_BONUS=false
+IS_QUOTE=false
 RUN_ALL=true
 SELECTED_TESTS=()
 
@@ -36,6 +37,10 @@ while [[ "$#" -gt 0 ]]; do
                 SELECTED_TESTS+=("$1")
                 shift
             done
+            ;;
+        --quote-test)
+            IS_QUOTE=true
+            shift
             ;;
         *)
             echo "Unknown argument: $1"
@@ -577,20 +582,23 @@ run_test "Parallel 02 (Long then Short)" "infiles/infile" "sleep 2" "ls" "normal
 run_test "Parallel 03 (Short then Long)" "infiles/infile" "ls" "sleep 2" "normal"
 
 # ==========================================
-# CATEGORY 14: COMPLEX PARSING
+# CATEGORY 14: PIPE BUFFER SATURATION (STRESS)
 # ==========================================
-CURRENT_CATEGORY="Category 14: Complex Parsing"
-run_test "Parsing 01 (Sed spaces)" "infiles/infile" "sed 's/Line/Test OK/g'" "cat" "normal"
-run_test "Parsing 02 (Grep phrase)" "infiles/infile" "grep 'Line 1'" "cat" "normal"
-run_test "Parsing 03 (Multi-spaces)" "infiles/infile" "ls      -l" "grep    Line" "normal"
-run_test "Parsing 04 (Empty quotes)" "infiles/infile" "cat" "grep ''" "normal"
-run_test "Parsing 05 (Tr sets)" "infiles/infile" "tr 'a-z' 'A-Z'" "cat" "normal"
-# ==========================================
-# CATEGORY 15: PIPE BUFFER SATURATION (STRESS)
-# ==========================================
-CURRENT_CATEGORY="Category 15: Pipe Buffer Saturation"
+CURRENT_CATEGORY="Category 14: Pipe Buffer Saturation"
 run_test "Buffer 01 (50k lines stress)" "infiles/big_infile" "cat" "wc -l" "normal"
 run_test "Buffer 02 (Binary flux stress)" "/dev/urandom" "head -c 1000000" "wc -c" "normal"
+
+# ==========================================
+# CATEGORY 15: COMPLEX PARSING
+# ==========================================
+if [ "$IS_QUOTE" = true ]; then
+    CURRENT_CATEGORY="Category 15: Complex Parsing"
+    run_test "Parsing 01 (Sed spaces)" "infiles/infile" "sed 's/Line/Test OK/g'" "cat" "normal"
+    run_test "Parsing 02 (Grep phrase)" "infiles/infile" "grep 'Line 1'" "cat" "normal"
+    run_test "Parsing 03 (Multi-spaces)" "infiles/infile" "ls      -l" "grep    Line" "normal"
+    run_test "Parsing 04 (Empty quotes)" "infiles/infile" "cat" "grep ''" "normal"
+    run_test "Parsing 05 (Tr sets)" "infiles/infile" "tr 'a-z' 'A-Z'" "cat" "normal"
+fi
 
 # ==========================================
 # CATEGORY 16 & 17: BONUS
