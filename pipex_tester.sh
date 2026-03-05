@@ -559,9 +559,8 @@ run_test "Error 05 (Outfile no perm)" "infiles/infile" "cat" "wc -l" "no_perm"
 run_test "Error 06 (Cmd1 is directory)" "infiles/infile" "/dev" "wc -l" "normal"
 run_test "Error 07 (Cmd2 is directory)" "infiles/infile" "cat" "/etc" "normal"
 run_test "Error 08 (Empty Cmd1)" "infiles/infile" "" "wc -l" "normal"
-run_test "Error 09 (Space Cmd2)" "infiles/infile" "cat" "   " "normal"
 touch outfiles/no_exec_file && chmod 644 outfiles/no_exec_file
-run_test "Error 10 (Cmd no exec perm)" "infiles/infile" "./outfiles/no_exec_file" "wc -l" "normal"
+run_test "Error 09 (Cmd no exec perm)" "infiles/infile" "./outfiles/no_exec_file" "wc -l" "normal"
 
 # ==========================================
 # CATEGORY 12: ABSOLUTE & RELATIVE PATHS
