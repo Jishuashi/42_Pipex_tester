@@ -569,7 +569,6 @@ CURRENT_CATEGORY="Category 12: Absolute & Relative Paths"
 run_test "Path 01 (Abs path /bin/ls)" "infiles/infile" "/bin/ls" "wc -l" "normal"
 cp /bin/cat ./cat_tester
 run_test "Path 02 (Relative ./cat)" "infiles/infile" "./cat_tester" "wc -l" "normal"
-rm -f ./cat_tester
 run_test "Path 03 (Invalid Command)" "infiles/infile" "non_existent_cmd" "wc -l" "normal"
 
 # ==========================================
